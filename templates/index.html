@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat with Lumi</title>
+
+  <link rel="stylesheet" href="styles.css">
+
+</head>
+
+<body>
+
+  <main class="app">
+
+    <header>
+      <h1>Chat with Lumi</h1>
+    </header>
+
+    <div class="chat">
+      {% for message in conversation %}
+      <div class="message {% if message.startswith('User:') %}user{% else %}bot{% endif %}">
+        {{ message | safe }}
+      </div>
+      {% endfor %}
+    </div>
+
+    <form class="input" method="POST" action="/">
+      <textarea name="input_text" rows="1" placeholder="Type your message..."></textarea>
+      <button type="submit">Send</button>
+    </form>
+
+  </main>
+
+</body>
+
+</html>

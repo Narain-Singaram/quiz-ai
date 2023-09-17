@@ -1,0 +1,51 @@
+/* Layout */
+
+.app {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Chat */
+
+.chat {
+  height: 500px;
+  overflow-y: scroll;
+  padding: 10px;
+}
+
+.message {
+  margin-bottom: 20px;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.message.user {
+  background-color: #007bff;
+  color: #fff;
+  text-align: right;
+}
+
+.message.bot {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+/* Input */
+
+.input textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  resize: vertical;
+}
+
+.input button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 5px;
+}

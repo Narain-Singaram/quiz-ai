@@ -25,12 +25,14 @@
             padding: 20px;
             max-height: 400px;
             overflow-y: auto;
+            margin-bottom: 20px;
         }
 
         .message {
-            margin-bottom: 20px;
+            margin-bottom: 10px;
             padding: 10px;
             border-radius: 5px;
+            word-wrap: break-word;
         }
 
         .user-message {
@@ -50,10 +52,9 @@
             border: 1px solid #ccc;
             border-radius: 5px;
             resize: vertical;
-            margin-top: 10px;
         }
 
-        input[type="submit"] {
+        input[type="submit"], .clear-button {
             background-color: #007bff;
             color: #fff;
             border: none;
@@ -65,18 +66,17 @@
 
         .clear-button {
             background-color: #dc3545;
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-            border-radius: 5px;
-            margin-top: 10px;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: space-between;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Chat with Lumi</h1>
+        <h1 style="text-align: center;">Chat with Lumi</h1>
         <div class="chat-box" id="conversation">
             {% for message in conversation %}
                 <div class="message {% if message.startswith('User:') %}user-message{% else %}chatbot-message{% endif %}">
@@ -89,9 +89,11 @@
             <br>
             <textarea id="input_text" name="input_text" rows="4" cols="50"></textarea>
             <br>
-            <input type="submit" value="Send">
+            <div class="button-container">
+                <input type="submit" value="Send">
+                <button class="clear-button" id="clear-chat">Clear Chat</button>
+            </div>
         </form>
-        <button class="clear-button" id="clear-chat">Clear Chat</button>
     </div>
 
     <script>

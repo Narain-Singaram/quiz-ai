@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
 
 # Import the palm module and configure the API key
 import google.generativeai as palm
@@ -59,6 +59,8 @@ def index():
 
         # Append the chatbot's response to the conversation history
         conversation_history.append(f"Chatbot: {generated_text}")
+
+        return redirect(url_for('index'))
 
     return render_template('index.html', generated_text=generated_text, conversation=conversation_history)
 

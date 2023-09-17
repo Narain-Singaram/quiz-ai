@@ -46,12 +46,14 @@
             color: #333;
         }
 
-        textarea {
+        .text-input {
             width: 100%;
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 5px;
-            resize: vertical;
+            resize: none;
+            margin-top: 10px;
+            font-size: 16px;
         }
 
         input[type="submit"], .clear-button {
@@ -87,7 +89,7 @@
         <form method="POST" action="/">
             <label for="input_text">Your message:</label>
             <br>
-            <textarea id="input_text" name="input_text" rows="4" cols="50"></textarea>
+            <textarea id="input_text" class="text-input" name="input_text" rows="4"></textarea>
             <br>
             <div class="button-container">
                 <input type="submit" value="Send">

@@ -65,7 +65,10 @@ def index():
 
         return redirect(url_for('index'))
 
+        print(generated_text)
+
     return render_template('index.html', generated_text=generated_text, conversation=conversation_history)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

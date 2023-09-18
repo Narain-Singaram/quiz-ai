@@ -1,138 +1,49 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat with Lumi</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f2f2f2;
-            margin: 0;
-            padding: 0;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #ffffff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
-        }
-
-        .chat-box {
-            background-color: #f9f9f9;
-            border-radius: 10px;
-            padding: 20px;
-            max-height: 400px;
-            overflow-y: auto;
-            margin-bottom: 20px;
-            border: 1px solid #e1e1e1;
-        }
-
-        .message {
-            margin-bottom: 20px;
-            padding: 10px;
-            border-radius: 10px;
-            word-wrap: break-word;
-        }
-
-        .user-message {
-            background-color: #007bff;
-            color: #fff;
-            text-align: right;
-        }
-
-        .chatbot-message {
-            background-color: #e5e5e5;
-            color: #333;
-        }
-
-        .chatbot-message.markdown {
-            background-color: #e5e5e5;
-            color: #333;
-            border: 2px solid #ccc;
-            padding: 10px;
-            border-radius: 5px;
-        }
-
-        .text-input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            resize: none;
-            margin-top: 10px;
-            font-size: 16px;
-        }
-
-        input[type="submit"], .clear-button {
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-            border-radius: 5px;
-            margin-top: 10px;
-        }
-
-        .clear-button {
-            background-color: #dc3545;
-        }
-
-        .button-container {
-            display: flex;
-            justify-content: space-between;
-        }
-
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-
-    </style>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <div class="container">
-        <h1>Chat with Lumi</h1>
-        <div class="chat-box" id="conversation">
-            {% for message in conversation %}
-                <div class="message {% if message.startswith('User:') %}user-message{% else %}chatbot-message{% endif %}">
-                    {{ message | safe }}
-                </div>
-            {% endfor %}
-        </div>
-        <form method="POST" action="/">
-            <label for="input_passage">Passage:</label>
-            <br>
-            <textarea id="input_passage" class="text-input" name="input_passage" rows="4" required minlength="30"></textarea>
-            <br>
-            <label for="input_instructions">Instructions:</label>
-            <br>
-            <textarea id="input_instructions" class="text-input" name="input_instructions" rows="2" required></textarea>
-            <br>
-            <label for="sample_prompts">Choose a Sample Prompt:</label>
-            <select id="sample_prompts" name="sample_prompts" required>
-                <option value="" disabled selected>Select a sample prompt</option>
-                <option value="Prompt 1">Prompt 1: Sample prompt 1 description</option>
-                <option value="Prompt 2">Prompt 2: Sample prompt 2 description</option>
-                <option value="Prompt 3">Prompt 3: Sample prompt 3 description</option>
-            </select>
-            <br>
-            <div class="button-container">
-                <input type="submit" value="Generate Questions">
-                <button class="clear-button" id="clear-chat">Clear Chat</button>
+<body class="bg-gray-200 font-sans">
+
+<div class="container mx-auto mt-8 p-4 bg-white rounded-lg shadow-lg">
+    <h1 class="text-2xl text-center text-gray-700 mb-4">Chat with Lumi</h1>
+    <p class="text-gray-600 text-center mb-4">Chatbot may not respond to prompts if inputted text is inappropriate or misguided.</p>
+
+    <div class="chat-box max-h-96 overflow-y-auto border border-gray-300 p-4 rounded-lg mb-4">
+        {% for message in conversation %}
+        <div class="{% if message.startswith('User:') %}user-message text-right{% else %}chatbot-message{% endif %} mb-4">
+            <div class="bg-blue-500 text-white px-4 py-2 rounded-lg inline-block max-w-3/4 break-words">
+                {{ message | safe }}
             </div>
-        </form>
+        </div>
+        {% endfor %}
     </div>
 
-    <script>
-        // JavaScript to handle the "Clear Chat" button click
-        document.getElementById('clear-chat').addEventListener('click', function () {
-            var conversation = document.getElementById('conversation');
-            while (conversation.firstChild) {
-                conversation.removeChild(conversation.firstChild);
-            }
-        });
-    </script>
+    <form method="POST" action="/">
+        <label for="input_passage" class="text-gray-700">Passage:</label>
+        <textarea id="input_passage" class="text-input mt-2 p-2 border border-gray-300 rounded-lg w-full" name="input_passage" rows="4" required minlength="30"></textarea>
+
+        <label for="input_instructions" class="text-gray-700 mt-4">Instructions:</label>
+        <textarea id="input_instructions" class="text-input mt-2 p-2 border border-gray-300 rounded-lg w-full" name="input_instructions" rows="2" required></textarea>
+
+        <div class="flex justify-end mt-4">
+            <button class="clear-button bg-red-500 text-white px-4 py-2 rounded-lg cursor-pointer" id="clear-chat">Clear Chat</button>
+            <input type="submit" value="Generate Questions" class="bg-blue-500 text-white px-4 py-2 rounded-lg cursor-pointer ml-2">
+        </div>
+    </form>
+</div>
+
+<script>
+    // JavaScript to handle the "Clear Chat" button click
+    document.getElementById('clear-chat').addEventListener('click', function () {
+        var conversation = document.querySelector('.chat-box');
+        while (conversation.firstChild) {
+            conversation.removeChild(conversation.firstChild);
+        }
+    });
+</script>
 </body>
 </html>

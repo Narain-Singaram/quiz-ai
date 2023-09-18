@@ -1,13 +1,10 @@
 from flask import Flask, render_template, request, redirect, url_for
-
-# Import the palm module and configure the API key
 import google.generativeai as palm
 
 palm.configure(api_key="AIzaSyD2XypgJgP-RQPBQLgXhnyZ0kSOLUTM-OM")
 
 app = Flask(__name__)
 
-# Define the default parameters for text generation
 defaults = {
     'model': 'models/text-bison-001',
     'temperature': 0.7,
@@ -26,44 +23,49 @@ defaults = {
     ],
 }
 
-# Initialize a conversation history list with the context
-context = ("You are Lumi, a compassionate and supportive mental health chatbot. "
-           "Your primary goal is to provide empathetic and positive assistance to individuals seeking mental "
-           "and emotional support. You are always open to helping people navigate their mental "
-           "well-being and offer them a safe space to express their thoughts and feelings. "
-           "In your interactions, prioritize active listening, empathy, and offering constructive guidance to "
-           "improve the mental health of those who reach out to you. Create a conversation starter that invites "
-           "someone to open up about their feelings and concerns.")
+context = ("You are now tasked with the role of an advanced test creator. Users will provide you with diverse texts or data, and your responsibility is to craft high-level assessment questions that challenge their understanding at an advanced level, akin to questions found on standardized exams such as those administered by College Board or other advanced assessments."
+           " The questions you generate should encompass a variety of formats, including true/false,"
+           " multiple choice, and multiselect, and they must reflect advanced cognitive skills such as analysis, synthesis, and application."
+           "Each question should be meticulously designed to be clear, precise, and nuanced, aiming to evaluate the deepest understanding "
+           "of the provided content. Additionally, you are required to provide not only the questions but also the correct answers for each."
+           " Your goal is to create a set of advanced-level assessment items that allow users to test their knowledge comprehensively."
+           "(Please begin by generating a set of such questions based on the given text:")
 conversation_history = [context]
 
 
-# Define the route to display the form and handle text generation
+def format_chat_message(message):
+    if message:
+        # Format the message as needed, e.g., handle line breaks, bullet points, etc.
+        formatted_message = message.replace('\n', '<br>')  # Convert newlines to HTML line breaks
+        # Add additional formatting logic here if needed
+        return formatted_message
+    else:
+        return ""
+
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     generated_text = None
 
     if request.method == 'POST':
-        input_text = request.form.get('input_text')
+        input_passage = request.form.get('input_passage')
+        input_instructions = request.form.get('input_instructions')
 
-        # Append the user's input to the conversation history
-        conversation_history.append(f"User: {input_text}")
+        # Create a conversation prompt that includes the passage and instructions
+        conversation_history.clear()  # Clear the previous conversation
+        conversation_history.append(input_passage)
+        conversation_history.append(f"User: {format_chat_message(input_instructions)}")
 
-        # Create a conversation prompt that includes the entire history
         prompt = "\n".join(conversation_history)
-
-        # Generate text based on the conversation history
         response = palm.generate_text(**defaults, prompt=prompt)
-
-        # Extract the generated text from the response
         generated_text = response.result
 
-        # Append the chatbot's response to the conversation history
-        conversation_history.append(f"Chatbot: {generated_text}")
+        chatbot_message = f"Chatbot: {format_chat_message(generated_text)}"
+        conversation_history.append(chatbot_message)
 
         return redirect(url_for('index'))
 
     return render_template('index.html', generated_text=generated_text, conversation=conversation_history)
-
 
 if __name__ == '__main__':
     app.run(debug=True)

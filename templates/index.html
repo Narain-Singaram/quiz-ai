@@ -14,24 +14,25 @@
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
-            background-color: #fff;
+            background-color: #ffffff;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             border-radius: 10px;
         }
 
         .chat-box {
-            background-color: #f0f0f0;
+            background-color: #f9f9f9;
             border-radius: 10px;
             padding: 20px;
             max-height: 400px;
             overflow-y: auto;
             margin-bottom: 20px;
+            border: 1px solid #e1e1e1;
         }
 
         .message {
-            margin-bottom: 10px;
+            margin-bottom: 20px;
             padding: 10px;
-            border-radius: 5px;
+            border-radius: 10px;
             word-wrap: break-word;
         }
 
@@ -44,6 +45,14 @@
         .chatbot-message {
             background-color: #e5e5e5;
             color: #333;
+        }
+
+        .chatbot-message.markdown {
+            background-color: #e5e5e5;
+            color: #333;
+            border: 2px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
         }
 
         .text-input {
@@ -74,11 +83,17 @@
             display: flex;
             justify-content: space-between;
         }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
     </style>
 </head>
 <body>
     <div class="container">
-        <h1 style="text-align: center;">Chat with Lumi</h1>
+        <h1>Chat with Lumi</h1>
         <div class="chat-box" id="conversation">
             {% for message in conversation %}
                 <div class="message {% if message.startswith('User:') %}user-message{% else %}chatbot-message{% endif %}">
@@ -87,12 +102,24 @@
             {% endfor %}
         </div>
         <form method="POST" action="/">
-            <label for="input_text">Your message:</label>
+            <label for="input_passage">Passage:</label>
             <br>
-            <textarea id="input_text" class="text-input" name="input_text" rows="4"></textarea>
+            <textarea id="input_passage" class="text-input" name="input_passage" rows="4" required minlength="30"></textarea>
+            <br>
+            <label for="input_instructions">Instructions:</label>
+            <br>
+            <textarea id="input_instructions" class="text-input" name="input_instructions" rows="2" required></textarea>
+            <br>
+            <label for="sample_prompts">Choose a Sample Prompt:</label>
+            <select id="sample_prompts" name="sample_prompts" required>
+                <option value="" disabled selected>Select a sample prompt</option>
+                <option value="Prompt 1">Prompt 1: Sample prompt 1 description</option>
+                <option value="Prompt 2">Prompt 2: Sample prompt 2 description</option>
+                <option value="Prompt 3">Prompt 3: Sample prompt 3 description</option>
+            </select>
             <br>
             <div class="button-container">
-                <input type="submit" value="Send">
+                <input type="submit" value="Generate Questions">
                 <button class="clear-button" id="clear-chat">Clear Chat</button>
             </div>
         </form>
@@ -101,7 +128,10 @@
     <script>
         // JavaScript to handle the "Clear Chat" button click
         document.getElementById('clear-chat').addEventListener('click', function () {
-            document.getElementById('conversation').innerHTML = '';
+            var conversation = document.getElementById('conversation');
+            while (conversation.firstChild) {
+                conversation.removeChild(conversation.firstChild);
+            }
         });
     </script>
 </body>

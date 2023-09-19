@@ -33,15 +33,13 @@
     </div>
     <form method="POST" action="/" enctype="multipart/form-data">
         <label for="input_passage" class="text-gray-700">Passage:</label>
-        <textarea id="input_passage" class="text-input mt-2 p-2 border border-gray-300 rounded-lg w-full" name="input_passage" rows="4" required minlength="30"></textarea>
+        <textarea id="input_passage" class="text-input mt-2 p-2 border border-gray-300 rounded-lg w-full" name="input_passage" rows="4" minlength="30"></textarea>
         <label for="input_instructions" class="text-gray-700 mt-4">Instructions:</label>
-        <textarea id="input_instructions" class="text-input mt-2 p-2 border border-gray-300 rounded-lg w-full" name="input_instructions" rows="2" required></textarea>
-        <label for="file_input" class="text-gray-700 mt-4">Upload PDF or DOCX file:</label>
-        <input type="file" id="file_input" name="file_input" class="mt-2">
-        <div class="mt-2 text-gray-500">Supported file types: PDF, DOCX</div>
+        <textarea id="input_instructions" class="text-input mt-2 p-2 border border-gray-300 rounded-lg w-full" name="input_instructions" rows="2"></textarea>
         <div class="flex justify-end mt-4">
             <button class="clear-button bg-red-500 text-white px-4 py-2 rounded-lg cursor-pointer" id="clear-chat">Clear Chat</button>
             <input type="submit" value="Generate Questions" class="bg-blue-500 text-white px-4 py-2 rounded-lg cursor-pointer ml-2">
+            <a href="{{ url_for('export_questions') }}" class="bg-green-500 text-white px-4 py-2 rounded-lg cursor-pointer ml-2">Export Questions</a>
         </div>
     </form>
 </div>
@@ -51,6 +49,23 @@
         while (conversation.firstChild) {
             conversation.removeChild(conversation.firstChild);
         }
+    });
+
+    document.getElementById('file_input').addEventListener('change', function () {
+        // Check if a file is uploaded
+        var fileUploaded = this.files.length > 0;
+
+        // Set the 'required' and 'minlength' attributes based on whether a file is uploaded
+        var passageInput = document.getElementById('input_passage');
+        passageInput.required = !fileUploaded;
+        passageInput.removeAttribute('minlength');
+
+        // Track whether a file is uploaded for use in the template
+        var fileUploadedInput = document.createElement('input');
+        fileUploadedInput.type = 'hidden';
+        fileUploadedInput.name = 'file_uploaded';
+        fileUploadedInput.value = fileUploaded;
+        this.form.appendChild(fileUploadedInput);
     });
 </script>
 </body>

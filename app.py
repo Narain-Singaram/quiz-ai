@@ -1,11 +1,12 @@
-from flask import Flask, render_template, request, redirect, url_for
-import PyPDF2
-from docx import Document
+from flask import Flask, render_template, request, redirect, url_for, flash, send_file
 import google.generativeai as palm
+import os
+from tempfile import NamedTemporaryFile
 
-palm.configure(api_key="AIzaSyD2XypgJgP-RQPBQLgXhnyZ0kSOLUTM-OM")
+palm.configure(api_key="AIzaSyD2XypgJgP-RQPBQLgXhnyZ0kSOLUTM-OM")  # Replace with your actual API key
 
 app = Flask(__name__)
+app.secret_key = "your_secret_key"
 
 defaults = {
     'model': 'models/text-bison-001',
@@ -27,26 +28,21 @@ defaults = {
 
 conversation_history = []
 
-def extract_text_from_pdf(pdf_file):
-    pdf_text = ""
-    try:
-        pdf_reader = PyPDF2.PdfFileReader(pdf_file)
-        for page_num in range(pdf_reader.numPages):
-            page = pdf_reader.getPage(page_num)
-            pdf_text += page.extractText()
-    except Exception as e:
-        print(f"Error extracting text from PDF: {str(e)}")
-    return pdf_text
+@app.route('/export_questions', methods=['GET'])
+def export_questions():
+    # Generate questions using the chat history
+    prompt = "\n".join(conversation_history)
+    response = palm.generate_text(**defaults, prompt=prompt)
+    generated_text = response.result
 
-def extract_text_from_docx(docx_file):
-    docx_text = ""
-    try:
-        doc = Document(docx_file)
-        for paragraph in doc.paragraphs:
-            docx_text += paragraph.text + "\n"
-    except Exception as e:
-        print(f"Error extracting text from DOCX: {str(e)}")
-    return docx_text
+    # Save the generated questions to a temporary file
+    with NamedTemporaryFile(delete=False, suffix=".txt", mode='w', dir='temp') as temp_file:
+        temp_file.write(generated_text)
+        temp_file_path = temp_file.name
+
+    # Provide the temporary file for download
+    return send_file(temp_file_path, as_attachment=True, download_name="generated_questions.txt")
+
 
 def format_chat_message(message):
     if message:
@@ -63,20 +59,12 @@ def index():
         input_passage = request.form.get('input_passage')
         input_instructions = request.form.get('input_instructions')
 
-        uploaded_file = request.files['file_input']
-
-        if uploaded_file:
-            if uploaded_file.filename.endswith('.pdf'):
-                pdf_text = extract_text_from_pdf(uploaded_file)
-                input_passage = f"{input_passage}\n{pdf_text}"
-            elif uploaded_file.filename.endswith('.docx'):
-                docx_text = extract_text_from_docx(uploaded_file)
-                input_passage = f"{input_passage}\n{docx_text}"
-
         conversation_history.clear()
+
         conversation_history.append(input_passage)
         conversation_history.append(f"User: {format_chat_message(input_instructions)}")
 
+        # Generate the response from the chatbot
         prompt = "\n".join(conversation_history)
         response = palm.generate_text(**defaults, prompt=prompt)
         generated_text = response.result

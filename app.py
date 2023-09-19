@@ -1,4 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for
+import PyPDF2
+from docx import Document
 import google.generativeai as palm
 
 palm.configure(api_key="AIzaSyD2XypgJgP-RQPBQLgXhnyZ0kSOLUTM-OM")
@@ -11,37 +13,47 @@ defaults = {
     'candidate_count': 1,
     'top_k': 40,
     'top_p': 0.95,
-    'max_output_tokens': 1024,
+    'max_output_tokens': 3000,
     'stop_sequences': [],
     'safety_settings': [
-        {"category": "HARM_CATEGORY_DEROGATORY", "threshold": 1},
-        {"category": "HARM_CATEGORY_TOXICITY", "threshold": 1},
-        {"category": "HARM_CATEGORY_VIOLENCE", "threshold": 2},
-        {"category": "HARM_CATEGORY_SEXUAL", "threshold": 2},
-        {"category": "HARM_CATEGORY_MEDICAL", "threshold": 2},
-        {"category": "HARM_CATEGORY_DANGEROUS", "threshold": 2},
+        {"category": "HARM_CATEGORY_DEROGATORY", "threshold": 4},
+        {"category": "HARM_CATEGORY_TOXICITY", "threshold": 4},
+        {"category": "HARM_CATEGORY_VIOLENCE", "threshold": 4},
+        {"category": "HARM_CATEGORY_SEXUAL", "threshold": 4},
+        {"category": "HARM_CATEGORY_MEDICAL", "threshold": 4},
+        {"category": "HARM_CATEGORY_DANGEROUS", "threshold": 4},
     ],
 }
 
-context = ("You are now tasked with the role of an advanced test creator. Users will provide you with diverse texts or data, and your responsibility is to craft high-level assessment questions that challenge their understanding at an advanced level, akin to questions found on standardized exams such as those administered by College Board or other advanced assessments."
-           " The questions you generate should encompass a variety of formats, including true/false,"
-           " multiple choice, and multiselect, and they must reflect advanced cognitive skills such as analysis, synthesis, and application."
-           "Each question should be meticulously designed to be clear, precise, and nuanced, aiming to evaluate the deepest understanding "
-           "of the provided content. Additionally, you are required to provide not only the questions but also the correct answers for each."
-           " Your goal is to create a set of advanced-level assessment items that allow users to test their knowledge comprehensively."
-           "(Please begin by generating a set of such questions based on the given text:")
-conversation_history = [context]
+conversation_history = []
 
+def extract_text_from_pdf(pdf_file):
+    pdf_text = ""
+    try:
+        pdf_reader = PyPDF2.PdfFileReader(pdf_file)
+        for page_num in range(pdf_reader.numPages):
+            page = pdf_reader.getPage(page_num)
+            pdf_text += page.extractText()
+    except Exception as e:
+        print(f"Error extracting text from PDF: {str(e)}")
+    return pdf_text
+
+def extract_text_from_docx(docx_file):
+    docx_text = ""
+    try:
+        doc = Document(docx_file)
+        for paragraph in doc.paragraphs:
+            docx_text += paragraph.text + "\n"
+    except Exception as e:
+        print(f"Error extracting text from DOCX: {str(e)}")
+    return docx_text
 
 def format_chat_message(message):
     if message:
-        # Format the message as needed, e.g., handle line breaks, bullet points, etc.
-        formatted_message = message.replace('\n', '<br>')  # Convert newlines to HTML line breaks
-        # Add additional formatting logic here if needed
+        formatted_message = message.replace('\n', '<br>')
         return formatted_message
     else:
         return ""
-
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -51,8 +63,17 @@ def index():
         input_passage = request.form.get('input_passage')
         input_instructions = request.form.get('input_instructions')
 
-        # Create a conversation prompt that includes the passage and instructions
-        conversation_history.clear()  # Clear the previous conversation
+        uploaded_file = request.files['file_input']
+
+        if uploaded_file:
+            if uploaded_file.filename.endswith('.pdf'):
+                pdf_text = extract_text_from_pdf(uploaded_file)
+                input_passage = f"{input_passage}\n{pdf_text}"
+            elif uploaded_file.filename.endswith('.docx'):
+                docx_text = extract_text_from_docx(uploaded_file)
+                input_passage = f"{input_passage}\n{docx_text}"
+
+        conversation_history.clear()
         conversation_history.append(input_passage)
         conversation_history.append(f"User: {format_chat_message(input_instructions)}")
 
@@ -65,10 +86,7 @@ def index():
 
         return redirect(url_for('index'))
 
-        print(generated_text)
-
     return render_template('index.html', generated_text=generated_text, conversation=conversation_history)
 
-
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=8080)

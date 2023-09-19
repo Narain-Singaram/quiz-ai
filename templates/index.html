@@ -3,41 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat with Lumi</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+    <title>Chat with QuizAI</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-200 font-sans">
-
 <div class="container mx-auto mt-8 p-4 bg-white rounded-lg shadow-lg">
-    <h1 class="text-2xl text-center text-gray-700 mb-4">Chat with Lumi</h1>
-    <p class="text-gray-600 text-center mb-4">Chatbot may not respond to prompts if inputted text is inappropriate or misguided.</p>
-
+    <h1 class="text-2xl text-center text-gray-700 mb-4">Chat with QuizAI</h1>
+    <p class="text-gray-500 text-center mb-4">Chatbot may not respond to prompts if inputted text is inappropriate or misguided.</p>
     <div class="chat-box max-h-96 overflow-y-auto border border-gray-300 p-4 rounded-lg mb-4">
         {% for message in conversation %}
-        <div class="{% if message.startswith('User:') %}user-message text-right{% else %}chatbot-message{% endif %} mb-4">
-            <div class="bg-blue-500 text-white px-4 py-2 rounded-lg inline-block max-w-3/4 break-words">
-                {{ message | safe }}
+        <div class="mb-4">
+            {% if message.startswith('User:') %}
+            <div class="flex items-start justify-end">
+                <div class="bg-blue-500 text-white px-4 py-2.5 rounded-2xl inline-block max-w-3/4 break-words ml-2">
+                    {{ message | safe }}
+                </div>
+                <img src="https://i.pinimg.com/736x/17/57/1c/17571cdf635b8156272109eaa9cb5900.jpg" alt="User Profile Image" class="w-8 h-8 rounded-full ml-2">
             </div>
+            {% else %}
+            <div class="flex items-start">
+                <img src="https://media.istockphoto.com/id/1221348467/vector/chat-bot-ai-and-customer-service-support-concept-vector-flat-person-illustration-smiling.jpg?s=612x612&w=0&k=20&c=emMSOYb4jWIVQQBVpYvP9LzGwPXXhcmbpZHlE6wgR78=" alt="AI Profile Image" class="w-8 h-8 rounded-full mr-2">
+                <div class="bg-blue-500 text-white px-4 py-2.5 rounded-2xl inline-block max-w-3/4 break-words ml-2">
+                    {{ message | safe }}
+                </div>
+            </div>
+            {% endif %}
         </div>
         {% endfor %}
     </div>
-
-    <form method="POST" action="/">
+    <form method="POST" action="/" enctype="multipart/form-data">
         <label for="input_passage" class="text-gray-700">Passage:</label>
         <textarea id="input_passage" class="text-input mt-2 p-2 border border-gray-300 rounded-lg w-full" name="input_passage" rows="4" required minlength="30"></textarea>
-
         <label for="input_instructions" class="text-gray-700 mt-4">Instructions:</label>
         <textarea id="input_instructions" class="text-input mt-2 p-2 border border-gray-300 rounded-lg w-full" name="input_instructions" rows="2" required></textarea>
-
+        <label for="file_input" class="text-gray-700 mt-4">Upload PDF or DOCX file:</label>
+        <input type="file" id="file_input" name="file_input" class="mt-2">
+        <div class="mt-2 text-gray-500">Supported file types: PDF, DOCX</div>
         <div class="flex justify-end mt-4">
             <button class="clear-button bg-red-500 text-white px-4 py-2 rounded-lg cursor-pointer" id="clear-chat">Clear Chat</button>
             <input type="submit" value="Generate Questions" class="bg-blue-500 text-white px-4 py-2 rounded-lg cursor-pointer ml-2">
         </div>
     </form>
 </div>
-
 <script>
-    // JavaScript to handle the "Clear Chat" button click
     document.getElementById('clear-chat').addEventListener('click', function () {
         var conversation = document.querySelector('.chat-box');
         while (conversation.firstChild) {

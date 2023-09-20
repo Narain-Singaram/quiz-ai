@@ -15,7 +15,7 @@
         <div class="mb-4">
             {% if message.startswith('User:') %}
             <div class="flex items-start justify-end">
-                <div class="bg-blue-500 text-white px-4 py-2.5 rounded-2xl inline-block max-w-3/4 break-words ml-2">
+                <div class="bg-black text-gray-100 px-4 py-2.5 rounded-2xl inline-block max-w-3/4 break-words ml-2">
                     {{ message | safe }}
                 </div>
                 <img src="https://i.pinimg.com/736x/17/57/1c/17571cdf635b8156272109eaa9cb5900.jpg" alt="User Profile Image" class="w-8 h-8 rounded-full ml-2">
@@ -23,9 +23,9 @@
             {% else %}
             <div class="flex items-start">
                 <img src="https://media.istockphoto.com/id/1221348467/vector/chat-bot-ai-and-customer-service-support-concept-vector-flat-person-illustration-smiling.jpg?s=612x612&w=0&k=20&c=emMSOYb4jWIVQQBVpYvP9LzGwPXXhcmbpZHlE6wgR78=" alt="AI Profile Image" class="w-8 h-8 rounded-full mr-2">
-                <div class="bg-blue-500 text-white px-4 py-2.5 rounded-2xl inline-block max-w-3/4 break-words ml-2">
+                <div class="bg-blue-500 text-blue-100 px-4 py-2.5 rounded-2xl inline-block max-w-3/4 break-words ml-2">
                     {{ message | safe }}
-                    <span class="copy-icon" onclick="copyToClipboard('{{ message }}')">📋</span>
+                    <span class="copy-icon bg-blue-400 mx-1 p-1 rounded-md text-xs text-white" onclick="copyToClipboard('{{ message }}')">Copy</span>
                 </div>
             </div>
             {% endif %}

@@ -78,7 +78,7 @@ def index():
         response = palm.generate_text(**defaults, prompt=prompt)
         generated_text = response.result
 
-        chatbot_message = f"Chatbot: {format_chat_message(generated_text)}"
+        chatbot_message = f"{format_chat_message(generated_text)}"
         conversation_history.append(chatbot_message)
 
         return redirect(url_for('index'))

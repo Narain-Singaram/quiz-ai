@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, send_file
 import google.generativeai as palm
 import os
+import io
 from tempfile import NamedTemporaryFile
 
 palm.configure(api_key="AIzaSyD2XypgJgP-RQPBQLgXhnyZ0kSOLUTM-OM")  # Replace with your actual API key
@@ -35,14 +36,22 @@ def export_questions():
     response = palm.generate_text(**defaults, prompt=prompt)
     generated_text = response.result
 
-    # Save the generated questions to a temporary file
-    with NamedTemporaryFile(delete=False, suffix=".txt", mode='w', dir='temp') as temp_file:
-        temp_file.write(generated_text)
-        temp_file_path = temp_file.name
+    if generated_text is not None:  # Ensure generated_text is not None
+        # Create an in-memory file
+        in_memory_file = io.BytesIO()
+        in_memory_file.write(generated_text.encode('utf-8'))
+        in_memory_file.seek(0)
 
-    # Provide the temporary file for download
-    return send_file(temp_file_path, as_attachment=True, download_name="generated_questions.txt")
-
+        # Provide the in-memory file for download
+        return send_file(
+            in_memory_file,
+            as_attachment=True,
+            download_name="generated_questions.txt",
+            mimetype='text/plain'
+        )
+    else:
+        flash("Error generating questions.")
+        return redirect(url_for('index'))
 
 def format_chat_message(message):
     if message:

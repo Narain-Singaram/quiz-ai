@@ -11,7 +11,7 @@ app.secret_key = "your_secret_key"
 
 defaults = {
     'model': 'models/text-bison-001',
-    'temperature': 0.7,
+    'temperature': 1,
     'candidate_count': 1,
     'top_k': 40,
     'top_p': 0.95,
